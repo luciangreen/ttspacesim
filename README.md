@@ -27,19 +27,56 @@ Primary exported predicates include:
 
 - `new_simulation/2`
 - `step/4`
-- `create_mission/2`
+- `create_mission/2` and `create_mission/3`
 - `register_traveller/3`
+- `register_environment/3`
 - `create_hop/5`
 - `validate_hop/3`
 - `plan_hop/3`
+- `plan_hop/5`
 - `simulate_hop/4`
+- `create_timeline/6` and `compare_timelines/4`
+- `generate_memory_set/6` and `validate_memory_set/4`
+- `continuity_report/5`
+- `environment_compatible/3`
 - `create_checkpoint/3`
 - `restore_checkpoint/2`
+- `save_simulation/2` and `load_simulation/2`
+- `explain_result/2` and `promote_to_real_action/3`
 - `create_universe/6`
+- `prepare_universe_reset/5`, `validate_universe_reset/3`, and `execute_universe_reset/4`
 - `run_universe_cycles/6`
 - `create_simulant_package/4`
+- `seal_simulant_package/2`, `hash_package/2`, and `verify_package_hash/2`
 - `register_bot_projector/4`
+- `plan_store_projection/5` and `execute_store_projection/4`
+- `project_simulant_backup/7`
+- `verify_projected_store/3`
 - `restore_simulant_from_stores/6`
+
+## Implemented features
+
+| Area | Shipped behavior | Main implementation |
+|---|---|---|
+| Simulation state | Explicit state passed between deterministic commands; simulated reality labels and structured diagnostics | `src/ttspacesim.pl`, `src/diagnostics.pl`, `src/reality_labels.pl` |
+| Space-time | Validated instants, universal/local clocks, planetary location conversion, canonical coordinates and ordering | `src/clocks.pl`, `src/coordinates.pl`, `src/celestial_catalogue.pl` |
+| Travellers and environments | Traveller registration, sample environments, compatibility checks and adaptation reports | `src/travellers.pl`, `src/environments.pl`, `src/compatibility.pl` |
+| Missions and routes | Mission construction, sample route durations and resource estimates, schedule-conflict detection | `src/ttspacesim.pl`, `src/routes.pl`, `src/schedules.pl`, `data/` |
+| Hops | Request construction, validation, plans for supported travel modes, execution, reality labels and continuity reports | `src/hop_planner.pl`, `src/hop_executor.pl`, `src/continuity.pl` |
+| Timelines and causality | Branch creation/comparison, causal paths, graph validation, dependency checks and cycle detection | `src/timelines.pl`, `src/branches.pl`, `src/causality.pl` |
+| Memories and checkpoints | Synthetic memory generation/validation, checkpoint creation/restoration, state persistence and package integrity checks | `src/synthetic_memories.pl`, `src/checkpoints.pl`, `src/persistence.pl` |
+| Consent and approvals | Consent checks, fictional replacement helper, and explicit promotion to a scheduled action record | `src/consent.pl`, `src/approvals.pl` |
+| Inventory helpers | Non-negative resource consumption/production and transfers over resource lists | `src/resources.pl` |
+| Universe cycles and projected stores | Finite reset/cycle execution, sealed packages, projector/store operations, replication, verification, repair, reconstruction and restoration | `src/ttspacesim.pl`, `src/validation.pl` |
+
+These are the implemented surfaces, not a claim that every requirement in
+`PROGRAM_REQUIREMENTS.md` is complete. In particular, the current API does not
+yet provide simulated message delivery, full mission scheduling/rescheduling,
+timeline switching/merging, causal memory-history compression and installation,
+full consent lifecycle/validation, or the full specified explanation API.
+Resource helpers currently operate on resource lists rather than simulation
+state inventories. See `IMPLEMENTATION_PROGRESS.md` for the tracked remaining
+work.
 
 ## Example command showcase
 
@@ -180,10 +217,31 @@ or real interstellar data projection is claimed.
 
 ## Tests
 
-Run the full PlUnit suite:
+Run the complete PlUnit suite, including resource helper tests:
 
 ```sh
 swipl -q -s test/run_tests.pl
+```
+
+Run one test group (available groups: `coordinates`, `clocks`, `resources`,
+`hops`, `timelines`, `memories`, `compatibility`, `causality`, `consent`,
+`persistence`, and `integration`):
+
+```sh
+swipl -q -s test/test_resources.pl -g "run_tests(resources)" -t halt
+```
+
+To run each test file independently, use the same command with the desired
+`test/test_*.pl` file and its group name. The complete runner loads shared test
+fixtures and all test groups.
+
+The examples above cover the demos. To execute every example in one shell
+session from the repository root:
+
+```sh
+for file in examples/*.pl; do
+  swipl -q -s "$file" -g run -t halt || exit $?
+done
 ```
 
 ## Simulation wording
