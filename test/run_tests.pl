@@ -5,6 +5,7 @@ main(_) :-
     load_test_file(Dir, 'test_support.pl'),
     load_test_file(Dir, 'test_coordinates.pl'),
     load_test_file(Dir, 'test_clocks.pl'),
+    load_test_file(Dir, 'test_resources.pl'),
     load_test_file(Dir, 'test_hops.pl'),
     load_test_file(Dir, 'test_timelines.pl'),
     load_test_file(Dir, 'test_memories.pl'),
